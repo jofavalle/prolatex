@@ -1,0 +1,176 @@
+% ============================================================================
+% Presentación: {{TITULO}}
+% Autor:        {{AUTOR}}
+% Fecha:        {{FECHA}}
+% ============================================================================
+\documentclass[aspectratio=169, 12pt]{beamer}
+
+% --- Idioma y codificación ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+
+% --- Tema y colores ---
+% Temas disponibles: metropolis, Madrid, Berlin, CambridgeUS, etc.
+% Descomenta el que prefieras:
+\usetheme{metropolis}
+% \usetheme{Madrid}
+% \usetheme{Berlin}
+
+% --- Personalización de colores ---
+% Si usas metropolis:
+\definecolor{PrimaryColor}{HTML}{2C3E50}
+\definecolor{AccentColor}{HTML}{E74C3C}
+\setbeamercolor{frametitle}{bg=PrimaryColor}
+\setbeamercolor{progress bar}{fg=AccentColor}
+\setbeamercolor{alerted text}{fg=AccentColor}
+
+% --- Tipografía ---
+\usepackage{lmodern}
+
+% --- Matemáticas ---
+\usepackage{amsmath, amssymb}
+
+% --- Figuras y gráficos ---
+\usepackage{graphicx}
+\graphicspath{{figuras/}}
+\usepackage{tikz}
+
+% --- Tablas ---
+\usepackage{booktabs}
+
+% --- Bibliografía ---
+\usepackage[
+  backend=biber,
+  style=numeric-comp,
+  maxnames=2
+]{biblatex}
+\addbibresource{referencias.bib}
+
+% --- Configuración adicional ---
+\usepackage{appendixnumberbeamer}  % Reinicia numeración en apéndice
+
+% Desactiva los botones de navegación
+\setbeamertemplate{navigation symbols}{}
+
+% ============================================================================
+% Metadatos
+% ============================================================================
+\title{{{TITULO}}}
+\subtitle{Subtítulo de la presentación}
+\author{{{AUTOR}}}
+\institute{Institución}
+\date{{{FECHA}}}
+
+% ============================================================================
+\begin{document}
+
+% --- Portada ---
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% --- Índice ---
+\begin{frame}{Contenido}
+  \tableofcontents
+\end{frame}
+
+% ============================================================================
+\section{Introducción}
+% ============================================================================
+
+\begin{frame}{Contexto}
+  \begin{itemize}
+    \item Primer punto de contexto.
+    \item Segundo punto de contexto.
+    \item Tercer punto de contexto.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Objetivo}
+  \begin{alertblock}{Objetivo principal}
+    Describe aquí el objetivo central de la presentación.
+  \end{alertblock}
+\end{frame}
+
+% ============================================================================
+\section{Desarrollo}
+% ============================================================================
+
+\begin{frame}{Punto clave 1}
+  Contenido del primer punto.
+
+  % Ejemplo de columnas:
+  % \begin{columns}[T]
+  %   \column{0.5\textwidth}
+  %     Texto a la izquierda.
+  %   \column{0.5\textwidth}
+  %     \includegraphics[width=\textwidth]{ejemplo.png}
+  % \end{columns}
+\end{frame}
+
+\begin{frame}{Punto clave 2}
+  Contenido del segundo punto.
+
+  % Ejemplo de tabla:
+  % \begin{table}
+  %   \centering
+  %   \begin{tabular}{lcc}
+  %     \toprule
+  %     Item & Valor A & Valor B \\
+  %     \midrule
+  %     Uno  & 10      & 20 \\
+  %     Dos  & 30      & 40 \\
+  %     \bottomrule
+  %   \end{tabular}
+  % \end{table}
+\end{frame}
+
+\begin{frame}{Punto clave 3}
+  Contenido del tercer punto.
+
+  % Ejemplo de bloques:
+  % \begin{exampleblock}{Ejemplo}
+  %   Un ejemplo ilustrativo.
+  % \end{exampleblock}
+\end{frame}
+
+% ============================================================================
+\section{Resultados}
+% ============================================================================
+
+\begin{frame}{Resultados principales}
+  \begin{enumerate}
+    \item Primer resultado.
+    \item Segundo resultado.
+    \item Tercer resultado.
+  \end{enumerate}
+\end{frame}
+
+% ============================================================================
+\section{Conclusiones}
+% ============================================================================
+
+\begin{frame}{Conclusiones}
+  \begin{itemize}
+    \item Primera conclusión.
+    \item Segunda conclusión.
+    \item Trabajo futuro.
+  \end{itemize}
+\end{frame}
+
+% --- Slide final ---
+\begin{frame}[standout]
+  ¡Gracias!
+
+  \vspace{1cm}
+  {\small ¿Preguntas?}
+\end{frame}
+
+% --- Referencias ---
+\appendix
+\begin{frame}[allowframebreaks]{Referencias}
+  \printbibliography
+\end{frame}
+
+\end{document}

@@ -1,0 +1,136 @@
+% ============================================================================
+% Ensayo: {{TITULO}}
+% Autor:  {{AUTOR}}
+% Fecha:  {{FECHA}}
+% ============================================================================
+\documentclass[12pt, a4paper]{report}
+
+% --- Idioma y codificación ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+
+% --- Tipografía ---
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
+
+% --- Márgenes y geometría ---
+\usepackage[
+  top=2.5cm,
+  bottom=2.5cm,
+  left=3cm,
+  right=3cm
+]{geometry}
+
+% --- Matemáticas ---
+\usepackage{amsmath, amssymb}
+
+% --- Figuras y gráficos ---
+\usepackage{graphicx}
+\graphicspath{{figuras/}}
+\usepackage{float}
+\usepackage{caption}
+
+% --- Tablas ---
+\usepackage{booktabs}
+\usepackage{array}
+
+% --- Colores y enlaces ---
+\usepackage[dvipsnames]{xcolor}
+\usepackage[
+  colorlinks=true,
+  linkcolor=NavyBlue,
+  citecolor=ForestGreen,
+  urlcolor=RoyalBlue
+]{hyperref}
+
+% --- Bibliografía ---
+\usepackage[
+  backend=biber,
+  style=apa,
+  sorting=nyt
+]{biblatex}
+\addbibresource{referencias.bib}
+
+% --- Encabezados y pies de página ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\leftmark}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+
+% --- Epígrafes (citas al inicio de capítulos) ---
+\usepackage{epigraph}
+\setlength{\epigraphwidth}{0.6\textwidth}
+
+% ============================================================================
+% Metadatos
+% ============================================================================
+\title{
+  \vspace{-2cm}
+  {\LARGE {{TITULO}}} \\[0.5cm]
+  {\large Ensayo}
+}
+\author{{{AUTOR}}}
+\date{{{FECHA}}}
+
+% ============================================================================
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% ============================================================================
+\chapter{Introducción}
+% ============================================================================
+
+% \epigraph{Una cita relevante.}{--- Autor de la cita}
+
+Escribe aquí la introducción del ensayo. Presenta el tema, la tesis
+central y una breve descripción de la estructura del documento.
+
+% ============================================================================
+\chapter{Desarrollo}
+% ============================================================================
+
+\section{Primer argumento}
+
+Desarrollo del primer argumento o idea principal.
+
+\section{Segundo argumento}
+
+Desarrollo del segundo argumento o idea principal.
+
+\section{Discusión}
+
+Contraste de ideas, análisis crítico y síntesis de los argumentos
+presentados.
+
+% ============================================================================
+\chapter{Conclusiones}
+% ============================================================================
+
+Conclusiones del ensayo. Retoma la tesis central y resume los hallazgos
+o reflexiones más importantes.
+
+% ============================================================================
+% Bibliografía
+% ============================================================================
+\printbibliography[heading=bibintoc, title={Referencias}]
+
+% ============================================================================
+% Apéndices (descomenta si los necesitas)
+% ============================================================================
+% \appendix
+% \chapter{Material complementario}
+% Contenido del apéndice.
+
+\end{document}

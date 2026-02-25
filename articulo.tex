@@ -1,0 +1,153 @@
+% ============================================================================
+% Artículo: {{TITULO}}
+% Autor:    {{AUTOR}}
+% Fecha:    {{FECHA}}
+% ============================================================================
+\documentclass[12pt, a4paper]{article}
+
+% --- Idioma y codificación ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+
+% --- Tipografía ---
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% --- Márgenes y geometría ---
+\usepackage[
+  top=2.5cm,
+  bottom=2.5cm,
+  left=3cm,
+  right=3cm
+]{geometry}
+
+% --- Matemáticas ---
+\usepackage{amsmath, amssymb, amsthm}
+
+% --- Figuras y gráficos ---
+\usepackage{graphicx}
+\graphicspath{{figuras/}}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% --- Tablas ---
+\usepackage{booktabs}
+\usepackage{array}
+
+% --- Colores y enlaces ---
+\usepackage[dvipsnames]{xcolor}
+\usepackage[
+  colorlinks=true,
+  linkcolor=NavyBlue,
+  citecolor=ForestGreen,
+  urlcolor=RoyalBlue
+]{hyperref}
+
+% --- Código fuente (descomenta si lo necesitas) ---
+% \usepackage{listings}
+% \usepackage{minted}
+
+% --- Bibliografía ---
+\usepackage[
+  backend=biber,
+  style=apa,
+  sorting=nyt
+]{biblatex}
+\addbibresource{referencias.bib}
+
+% --- Encabezados y pies de página ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\leftmark}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% --- Teoremas y definiciones ---
+\theoremstyle{definition}
+\newtheorem{definicion}{Definición}[section]
+\newtheorem{ejemplo}{Ejemplo}[section]
+\theoremstyle{plain}
+\newtheorem{teorema}{Teorema}[section]
+\newtheorem{proposicion}{Proposición}[section]
+
+% ============================================================================
+% Metadatos
+% ============================================================================
+\title{{{TITULO}}}
+\author{{{AUTOR}}}
+\date{{{FECHA}}}
+
+% ============================================================================
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  Resumen del artículo. Describe brevemente el objetivo, la metodología
+  y las conclusiones principales.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================================
+\section{Introducción}
+% ============================================================================
+
+Escribe aquí la introducción del artículo.
+
+% ============================================================================
+\section{Marco teórico}
+% ============================================================================
+
+Desarrollo del marco teórico y revisión de literatura.
+
+% ============================================================================
+\section{Metodología}
+% ============================================================================
+
+Descripción de la metodología utilizada.
+
+% ============================================================================
+\section{Resultados}
+% ============================================================================
+
+Presentación y análisis de los resultados.
+
+% Ejemplo de figura:
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.8\textwidth]{ejemplo.png}
+%   \caption{Descripción de la figura.}
+%   \label{fig:ejemplo}
+% \end{figure}
+
+% Ejemplo de tabla:
+% \begin{table}[H]
+%   \centering
+%   \caption{Descripción de la tabla.}
+%   \label{tab:ejemplo}
+%   \begin{tabular}{lcc}
+%     \toprule
+%     Columna 1 & Columna 2 & Columna 3 \\
+%     \midrule
+%     Dato 1 & Dato 2 & Dato 3 \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
+
+% ============================================================================
+\section{Conclusiones}
+% ============================================================================
+
+Conclusiones del artículo.
+
+% ============================================================================
+% Bibliografía
+% ============================================================================
+\printbibliography
+
+\end{document}
