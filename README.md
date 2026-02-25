@@ -102,7 +102,28 @@ Para agregar referencias, edita el archivo `referencias.bib` con entradas BibTeX
 
 - Python 3.6+
 - Una distribución LaTeX (TeX Live, MiKTeX)
-- `biber` (para bibliografía con biblatex)
-- `biblatex-phys` (estilo AIP — en Debian/Ubuntu viene con `texlive-bibtex-extra`)
 - `latexmk` (opcional, para `make watch`)
-- Para presentaciones con tema Metropolis: `sudo tlmgr install beamertheme-metropolis`
+
+### Instalación de dependencias LaTeX en Debian/Ubuntu
+
+```bash
+# Paquetes esenciales (compilador, biber y estilos bibliográficos incluyendo biblatex-phys)
+sudo apt-get install texlive-latex-recommended texlive-bibtex-extra biber
+
+# Soporte para español
+sudo apt-get install texlive-lang-spanish
+
+# Tema Metropolis para presentaciones beamer
+sudo apt-get install texlive-latex-extra
+
+# Compilación continua (opcional)
+sudo apt-get install latexmk
+```
+
+O instala todo de una vez:
+
+```bash
+sudo apt-get install texlive-full
+```
+
+> **Nota:** `texlive-full` ocupa varios GB pero incluye todo lo necesario sin preocuparte por dependencias faltantes.
