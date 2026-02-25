@@ -1,6 +1,6 @@
-# generarproyecto
+# Generador de Proyectos LaTeX
 
-Herramienta CLI para generar proyectos LaTeX a partir de plantillas predefinidas.
+Herramienta CLI para generar proyectos LaTeX a partir de plantillas predefinidas, orientada a proyectos de física.
 
 ## Instalación
 
@@ -92,10 +92,17 @@ Los placeholders disponibles son:
 - `{{FECHA}}` — Fecha de creación
 - `{{NOMBRE_ARCHIVO}}` — Slug del nombre (para el Makefile)
 
+## Bibliografía
+
+Las plantillas usan `biblatex` con el estilo **phys** (`biblatex-phys`), que sigue el formato de revistas AIP/APS (Physical Review, Journal of Applied Physics, etc.). Las citas se numeran en orden de aparición (`sorting=none`).
+
+Para agregar referencias, edita el archivo `referencias.bib` con entradas BibTeX y cítalas en el documento con `\cite{clave}`.
+
 ## Requisitos
 
 - Python 3.6+
 - Una distribución LaTeX (TeX Live, MiKTeX)
 - `biber` (para bibliografía con biblatex)
+- `biblatex-phys` (estilo AIP — en Debian/Ubuntu viene con `texlive-bibtex-extra`)
 - `latexmk` (opcional, para `make watch`)
 - Para presentaciones con tema Metropolis: `sudo tlmgr install beamertheme-metropolis`
