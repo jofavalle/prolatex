@@ -5,7 +5,7 @@ Herramienta CLI para generar proyectos LaTeX a partir de plantillas predefinidas
 ## Instalación
 
 ```bash
-git clone <este-repo> && cd latexgen
+git clone <este-repo> && cd prolatex
 bash instalar.sh
 ```
 
