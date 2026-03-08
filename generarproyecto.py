@@ -6,6 +6,7 @@ Crea la estructura de un proyecto LaTeX a partir de plantillas predefinidas.
 
 Uso:
     generarproyecto --nombre "Mi artículo" --tipo art
+    generarproyecto --nombre "Mi artículo" --tipo art --citas apa
     generarproyecto --nombre "Mi ensayo" --tipo ens
     generarproyecto --nombre "Mi presentación" --tipo pres
     generarproyecto --nombre "Mi artículo" --tipo art --autor "Juan Pérez"
@@ -14,6 +15,14 @@ Tipos disponibles:
     art   → Artículo (documentclass: article)
     ens   → Ensayo (documentclass: report)
     pres  → Presentación (documentclass: beamer)
+
+Estilos de citas:
+    aip        → AIP (American Institute of Physics) [por defecto]
+    apa        → APA 7.ª edición
+    ieee       → IEEE
+    nature     → Nature
+    numeric    → Numérico genérico
+    authoryear → Autor-año genérico
 """
 
 import argparse
@@ -56,6 +65,43 @@ TIPOS = {
         "clase": "beamer",
     },
 }
+
+# Estilos de citas disponibles (relevantes para Física)
+# Cada entrada: clave → (estilo biblatex, sorting, descripción)
+ESTILOS_CITAS = {
+    "aip": {
+        "estilo": "phys",
+        "sorting": "none",
+        "descripcion": "AIP (American Institute of Physics) — numérico, orden de aparición",
+    },
+    "apa": {
+        "estilo": "apa",
+        "sorting": "nyt",
+        "descripcion": "APA 7.ª edición — autor-año, orden alfabético",
+    },
+    "ieee": {
+        "estilo": "ieee",
+        "sorting": "none",
+        "descripcion": "IEEE — numérico, orden de aparición",
+    },
+    "nature": {
+        "estilo": "nature",
+        "sorting": "none",
+        "descripcion": "Nature — numérico, orden de aparición",
+    },
+    "numeric": {
+        "estilo": "numeric",
+        "sorting": "none",
+        "descripcion": "Numérico genérico — orden de aparición",
+    },
+    "authoryear": {
+        "estilo": "authoryear",
+        "sorting": "nyt",
+        "descripcion": "Autor-año genérico — orden alfabético",
+    },
+}
+
+CITAS_DEFAULT = "aip"
 
 # Autor por defecto. Puedes cambiarlo aquí o usar la variable de entorno
 # LATEX_AUTOR, o pasar --autor en la línea de comandos.
@@ -129,7 +175,7 @@ def verificar_plantillas():
 # Función principal
 # ============================================================================
 
-def crear_proyecto(nombre: str, tipo: str, autor: str, directorio_base: Path):
+def crear_proyecto(nombre: str, tipo: str, autor: str, citas: str, directorio_base: Path):
     """Crea la estructura completa del proyecto LaTeX."""
 
     if tipo not in TIPOS:
@@ -151,12 +197,17 @@ def crear_proyecto(nombre: str, tipo: str, autor: str, directorio_base: Path):
     hoy = datetime.now()
     fecha = f"{hoy.day} de {meses_es[hoy.month]} de {hoy.year}"
 
+    # Estilo de citas
+    info_citas = ESTILOS_CITAS[citas]
+
     # Variables para sustituir en las plantillas
     variables = {
         "TITULO": nombre,
         "AUTOR": autor,
         "FECHA": fecha,
         "NOMBRE_ARCHIVO": slug,
+        "ESTILO_CITAS": info_citas["estilo"],
+        "SORTING_CITAS": info_citas["sorting"],
     }
 
     # Crear directorio del proyecto
@@ -232,6 +283,7 @@ def crear_proyecto(nombre: str, tipo: str, autor: str, directorio_base: Path):
     print(f"  Tipo:      {info_tipo['descripcion']}")
     print(f"  Título:    {nombre}")
     print(f"  Autor:     {autor}")
+    print(f"  Citas:     {info_citas['descripcion']}")
     print(f"  Directorio: {dir_proyecto}/")
     print()
     print(f"  Archivos generados:")
@@ -263,23 +315,29 @@ def main():
             "  ens   → Ensayo (report)\n"
             "  pres  → Presentación (beamer)\n"
             "\n"
+            "Estilos de citas:\n"
+            "  aip        → AIP (por defecto)\n"
+            "  apa        → APA 7.ª edición\n"
+            "  ieee       → IEEE\n"
+            "  nature     → Nature\n"
+            "  numeric    → Numérico genérico\n"
+            "  authoryear → Autor-año genérico\n"
+            "\n"
             "Ejemplos:\n"
             "  generarproyecto --nombre 'Análisis de datos' --tipo art\n"
-            "  generarproyecto -n 'Ética en IA' -t ens --autor 'María López'\n"
-            "  generarproyecto -n 'Avances en ML' -t pres\n"
+            "  generarproyecto -n 'Ética en IA' -t ens --citas apa\n"
+            "  generarproyecto -n 'Avances en ML' -t pres --autor 'María López'\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     parser.add_argument(
         "-n", "--nombre",
-        required=True,
         help="Título del proyecto (se usará también para nombrar el directorio)"
     )
 
     parser.add_argument(
         "-t", "--tipo",
-        required=True,
         choices=list(TIPOS.keys()),
         help="Tipo de documento: art (artículo), ens (ensayo), pres (presentación)"
     )
@@ -297,6 +355,13 @@ def main():
     )
 
     parser.add_argument(
+        "-c", "--citas",
+        default=CITAS_DEFAULT,
+        choices=list(ESTILOS_CITAS.keys()),
+        help=f"Estilo de citas bibliográficas (default: '{CITAS_DEFAULT}')"
+    )
+
+    parser.add_argument(
         "--listar",
         action="store_true",
         help="Muestra los tipos de proyecto disponibles y sale"
@@ -310,12 +375,24 @@ def main():
         for clave, info in TIPOS.items():
             print(f"  {clave:6s} → {info['descripcion']}")
         print()
+        print("Estilos de citas disponibles:")
+        print()
+        for clave, info in ESTILOS_CITAS.items():
+            print(f"  {clave:12s} → {info['descripcion']}")
+        print()
         sys.exit(0)
+
+    # Validar argumentos requeridos cuando no se usa --listar
+    if not args.nombre:
+        parser.error("el argumento -n/--nombre es requerido")
+    if not args.tipo:
+        parser.error("el argumento -t/--tipo es requerido")
 
     crear_proyecto(
         nombre=args.nombre,
         tipo=args.tipo,
         autor=args.autor,
+        citas=args.citas,
         directorio_base=Path(args.directorio).resolve(),
     )
 

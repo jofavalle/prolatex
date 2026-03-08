@@ -26,10 +26,14 @@ generarproyecto -n "Avances en machine learning" -t pres
 # Especificar autor
 generarproyecto -n "Mi artículo" -t art --autor "María López"
 
+# Especificar estilo de citas
+generarproyecto -n "Mi artículo" -t art --citas apa
+generarproyecto -n "Mi ensayo" -t ens -c ieee
+
 # Crear en un directorio específico
 generarproyecto -n "Mi artículo" -t art -d ~/proyectos/
 
-# Listar tipos disponibles
+# Listar tipos y estilos disponibles
 generarproyecto --listar
 ```
 
@@ -40,6 +44,19 @@ generarproyecto --listar
 | `art` | Artículo | `article` |
 | `ens` | Ensayo | `report` |
 | `pres` | Presentación | `beamer` |
+
+## Estilos de citas
+
+Puedes elegir el estilo de citas bibliográficas con la opción `-c` / `--citas`. Por defecto se usa **AIP** (`phys`).
+
+| Código | Estilo | Sorting | Descripción |
+|--------|--------|---------|-------------|
+| `aip` | `phys` | `none` | AIP (American Institute of Physics) — numérico, orden de aparición **(por defecto)** |
+| `apa` | `apa` | `nyt` | APA 7.ª edición — autor-año, orden alfabético |
+| `ieee` | `ieee` | `none` | IEEE — numérico, orden de aparición |
+| `nature` | `nature` | `none` | Nature — numérico, orden de aparición |
+| `numeric` | `numeric` | `none` | Numérico genérico — orden de aparición |
+| `authoryear` | `authoryear` | `nyt` | Autor-año genérico — orden alfabético |
 
 ## Estructura generada
 
@@ -91,10 +108,12 @@ Los placeholders disponibles son:
 - `{{AUTOR}}` — Nombre del autor
 - `{{FECHA}}` — Fecha de creación
 - `{{NOMBRE_ARCHIVO}}` — Slug del nombre (para el Makefile)
+- `{{ESTILO_CITAS}}` — Estilo de biblatex seleccionado (ej. `phys`, `apa`, `ieee`)
+- `{{SORTING_CITAS}}` — Método de ordenación de la bibliografía (ej. `none`, `nyt`)
 
 ## Bibliografía
 
-Las plantillas usan `biblatex` con el estilo **phys** (`biblatex-phys`), que sigue el formato de revistas AIP/APS (Physical Review, Journal of Applied Physics, etc.). Las citas se numeran en orden de aparición (`sorting=none`).
+Las plantillas usan `biblatex` con backend `biber`. El estilo de citas se configura al crear el proyecto con la opción `--citas` (ver [Estilos de citas](#estilos-de-citas)). Por defecto se usa el estilo **AIP** (`phys`), que sigue el formato de revistas AIP/APS (Physical Review, Journal of Applied Physics, etc.).
 
 Para agregar referencias, edita el archivo `referencias.bib` con entradas BibTeX y cítalas en el documento con `\cite{clave}`.
 
