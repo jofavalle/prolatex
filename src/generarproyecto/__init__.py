@@ -10,6 +10,8 @@ Uso:
     generarproyecto --nombre "Mi ensayo" --tipo ens
     generarproyecto --nombre "Mi presentación" --tipo pres
     generarproyecto --nombre "Mi artículo" --tipo art --autor "Juan Pérez"
+    generarproyecto --nombre "Mi artículo" --tipo art -l
+    generarproyecto --nombre "Mi ensayo" --tipo ens -l --lineas-lado derecha --lineas-modulo 5
 
 Tipos disponibles:
     art   → Artículo (documentclass: article)
@@ -23,6 +25,11 @@ Estilos de citas:
     nature     → Nature
     numeric    → Numérico genérico
     authoryear → Autor-año genérico
+
+Numeración de líneas (solo art/ens):
+    -l, --numeracion-lineas   Activa el paquete `lineno` (envíos a revisión)
+    --lineas-lado             izquierda [por defecto] | derecha
+    --lineas-modulo           Muestra el número cada N líneas (default: 1)
 """
 
 import argparse
@@ -31,21 +38,66 @@ import re
 import shutil
 import sys
 from datetime import datetime
+from importlib import resources
 from pathlib import Path
+
+# En consolas de Windows (cmd.exe) sin code page UTF-8, imprimir los símbolos
+# usados en los mensajes (✓, →, ─, ⚠) puede lanzar UnicodeEncodeError. Se
+# reconfigura la salida a UTF-8 de forma defensiva cuando el intérprete lo
+# permite (Python 3.7+).
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
 
 # ============================================================================
 # Configuración
 # ============================================================================
 
-# Directorio donde viven las plantillas.
-# Por defecto busca en ~/.latex-templates/
-# Puedes sobreescribirlo con la variable de entorno LATEX_TEMPLATES_DIR
-TEMPLATES_DIR = Path(
-    os.environ.get(
-        "LATEX_TEMPLATES_DIR",
-        Path.home() / ".latex-templates"
-    )
-)
+def _plantillas_embebidas():
+    """
+    Devuelve la ruta a las plantillas empaquetadas dentro del propio paquete
+    (disponibles cuando se instala vía `pip install .` / `pipx install .`),
+    o None si no se pueden resolver (ej. ejecutando el script suelto).
+    """
+    try:
+        recurso = resources.files("generarproyecto") / "templates"
+        if recurso.is_dir():
+            return Path(recurso)
+    except (ModuleNotFoundError, FileNotFoundError, TypeError):
+        pass
+    return None
+
+
+def resolver_templates_dir() -> Path:
+    """
+    Resuelve el directorio de plantillas a usar, en este orden de prioridad:
+      1. Variable de entorno LATEX_TEMPLATES_DIR.
+      2. ~/.latex-templates si existe (instalado con instalar.sh / instalar.ps1).
+      3. Plantillas embebidas en el paquete (instalación vía pip/pipx).
+      4. ~/.latex-templates por defecto (aunque no exista aún), para que los
+         mensajes de error de verificar_plantillas() sean consistentes.
+    """
+    env_dir = os.environ.get("LATEX_TEMPLATES_DIR")
+    if env_dir:
+        return Path(env_dir)
+
+    dir_usuario = Path.home() / ".latex-templates"
+    if dir_usuario.exists():
+        return dir_usuario
+
+    embebidas = _plantillas_embebidas()
+    if embebidas is not None:
+        return embebidas
+
+    return dir_usuario
+
+
+# Directorio donde viven las plantillas (ver resolver_templates_dir() para
+# el orden de prioridad).
+TEMPLATES_DIR = resolver_templates_dir()
 
 # Mapeo de tipos cortos a nombres de plantilla y descripciones
 TIPOS = {
@@ -107,6 +159,21 @@ CITAS_DEFAULT = "aip"
 # LATEX_AUTOR, o pasar --autor en la línea de comandos.
 AUTOR_DEFAULT = os.environ.get("LATEX_AUTOR", "Tu Nombre")
 
+# Tipos de documento que admiten numeración de líneas (revisión de revistas).
+# No aplica a presentaciones (beamer).
+TIPOS_CON_NUMERACION_LINEAS = ("art", "ens")
+
+# Mapeo de --lineas-lado a la opción del paquete `lineno` que se añade a
+# \usepackage[...]{lineno}. "izquierda" es el comportamiento por defecto del
+# paquete (sin opción extra).
+LADOS_LINEA = {
+    "izquierda": "",
+    "derecha": "right",
+}
+
+LINEAS_LADO_DEFAULT = "izquierda"
+LINEAS_MODULO_DEFAULT = 1
+
 
 # ============================================================================
 # Funciones auxiliares
@@ -153,11 +220,15 @@ def verificar_plantillas():
     if not TEMPLATES_DIR.exists():
         print(f"Error: No se encontró el directorio de plantillas: {TEMPLATES_DIR}")
         print()
-        print("Para instalar las plantillas, ejecuta:")
-        print(f"  mkdir -p {TEMPLATES_DIR}")
-        print(f"  cp plantillas/* {TEMPLATES_DIR}/")
+        print("Para instalar las plantillas, ejecuta el instalador incluido:")
+        print("  bash instalar.sh          (Linux/macOS)")
+        print("  ./instalar.ps1            (Windows, PowerShell)")
         print()
-        print("O define LATEX_TEMPLATES_DIR apuntando a tu directorio de plantillas.")
+        print("O instala el paquete con pip/pipx (usa plantillas embebidas, sin pasos extra):")
+        print("  pip install .")
+        print("  pipx install .")
+        print()
+        print("También puedes definir LATEX_TEMPLATES_DIR apuntando a tu propio directorio de plantillas.")
         sys.exit(1)
 
     archivos_necesarios = ["articulo.tex", "ensayo.tex", "presentacion.tex",
@@ -175,7 +246,16 @@ def verificar_plantillas():
 # Función principal
 # ============================================================================
 
-def crear_proyecto(nombre: str, tipo: str, autor: str, citas: str, directorio_base: Path):
+def crear_proyecto(
+    nombre: str,
+    tipo: str,
+    autor: str,
+    citas: str,
+    directorio_base: Path,
+    numeracion_lineas: bool = False,
+    lineas_lado: str = LINEAS_LADO_DEFAULT,
+    lineas_modulo: int = LINEAS_MODULO_DEFAULT,
+):
     """Crea la estructura completa del proyecto LaTeX."""
 
     if tipo not in TIPOS:
@@ -184,6 +264,14 @@ def crear_proyecto(nombre: str, tipo: str, autor: str, citas: str, directorio_ba
         sys.exit(1)
 
     verificar_plantillas()
+
+    # La numeración de líneas no aplica a presentaciones (beamer)
+    if numeracion_lineas and tipo not in TIPOS_CON_NUMERACION_LINEAS:
+        print(
+            f"Advertencia: la numeración de líneas no aplica al tipo '{tipo}' "
+            "(solo 'art' y 'ens'). Se ignorará."
+        )
+        numeracion_lineas = False
 
     # Generar nombre del directorio y archivo
     slug = slugify(nombre)
@@ -200,6 +288,21 @@ def crear_proyecto(nombre: str, tipo: str, autor: str, citas: str, directorio_ba
     # Estilo de citas
     info_citas = ESTILOS_CITAS[citas]
 
+    # Numeración de líneas (paquete `lineno`), opcional
+    if numeracion_lineas:
+        opcion_lado = LADOS_LINEA[lineas_lado]
+        opciones_paquete = f"[{opcion_lado}]" if opcion_lado else ""
+        lineno_paquete = (
+            "% --- Numeración de líneas (revisión) ---\n"
+            f"\\usepackage{opciones_paquete}{{lineno}}"
+        )
+        lineno_activar = "\\linenumbers"
+        if lineas_modulo > 1:
+            lineno_activar += f"\n\\modulolinenumbers[{lineas_modulo}]"
+    else:
+        lineno_paquete = ""
+        lineno_activar = ""
+
     # Variables para sustituir en las plantillas
     variables = {
         "TITULO": nombre,
@@ -208,6 +311,8 @@ def crear_proyecto(nombre: str, tipo: str, autor: str, citas: str, directorio_ba
         "NOMBRE_ARCHIVO": slug,
         "ESTILO_CITAS": info_citas["estilo"],
         "SORTING_CITAS": info_citas["sorting"],
+        "LINENO_PAQUETE": lineno_paquete,
+        "LINENO_ACTIVAR": lineno_activar,
     }
 
     # Crear directorio del proyecto
@@ -284,6 +389,8 @@ def crear_proyecto(nombre: str, tipo: str, autor: str, citas: str, directorio_ba
     print(f"  Título:    {nombre}")
     print(f"  Autor:     {autor}")
     print(f"  Citas:     {info_citas['descripcion']}")
+    if numeracion_lineas:
+        print(f"  Líneas:    numeradas ({lineas_lado}, módulo {lineas_modulo})")
     print(f"  Directorio: {dir_proyecto}/")
     print()
     print(f"  Archivos generados:")
@@ -327,6 +434,8 @@ def main():
             "  generarproyecto --nombre 'Análisis de datos' --tipo art\n"
             "  generarproyecto -n 'Ética en IA' -t ens --citas apa\n"
             "  generarproyecto -n 'Avances en ML' -t pres --autor 'María López'\n"
+            "  generarproyecto -n 'Revisión de pares' -t art -l\n"
+            "  generarproyecto -n 'Revisión de pares' -t ens -l --lineas-lado derecha --lineas-modulo 5\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -367,6 +476,35 @@ def main():
         help="Muestra los tipos de proyecto disponibles y sale"
     )
 
+    parser.add_argument(
+        "-l", "--numeracion-lineas",
+        action="store_true",
+        help=(
+            "Activa numeración de líneas (paquete lineno), útil para envíos a "
+            "revisión en revistas científicas. Solo aplica a 'art' y 'ens'."
+        )
+    )
+
+    parser.add_argument(
+        "--lineas-lado",
+        default=LINEAS_LADO_DEFAULT,
+        choices=list(LADOS_LINEA.keys()),
+        help=(
+            f"Margen donde aparece la numeración de líneas (default: "
+            f"'{LINEAS_LADO_DEFAULT}'). Solo tiene efecto con -l/--numeracion-lineas."
+        )
+    )
+
+    parser.add_argument(
+        "--lineas-modulo",
+        type=int,
+        default=LINEAS_MODULO_DEFAULT,
+        help=(
+            f"Muestra el número de línea cada N líneas (default: "
+            f"{LINEAS_MODULO_DEFAULT} = todas). Solo tiene efecto con -l/--numeracion-lineas."
+        )
+    )
+
     args = parser.parse_args()
 
     if args.listar:
@@ -387,6 +525,8 @@ def main():
         parser.error("el argumento -n/--nombre es requerido")
     if not args.tipo:
         parser.error("el argumento -t/--tipo es requerido")
+    if args.lineas_modulo < 1:
+        parser.error("--lineas-modulo debe ser un entero >= 1")
 
     crear_proyecto(
         nombre=args.nombre,
@@ -394,6 +534,9 @@ def main():
         autor=args.autor,
         citas=args.citas,
         directorio_base=Path(args.directorio).resolve(),
+        numeracion_lineas=args.numeracion_lineas,
+        lineas_lado=args.lineas_lado,
+        lineas_modulo=args.lineas_modulo,
     )
 
 

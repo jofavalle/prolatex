@@ -1,9 +1,9 @@
 % ============================================================================
-% Artículo: {{TITULO}}
-% Autor:    {{AUTOR}}
-% Fecha:    {{FECHA}}
+% Ensayo: {{TITULO}}
+% Autor:  {{AUTOR}}
+% Fecha:  {{FECHA}}
 % ============================================================================
-\documentclass[12pt, a4paper]{article}
+\documentclass[12pt, a4paper]{report}
 
 % --- Idioma y codificación ---
 \usepackage[utf8]{inputenc}
@@ -13,24 +13,25 @@
 % --- Tipografía ---
 \usepackage{lmodern}
 \usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
 
 % --- Márgenes y geometría ---
 \usepackage[
   top=2.5cm,
   bottom=2.5cm,
-  left=2.5cm,
-  right=2.5cm
+  left=3cm,
+  right=3cm
 ]{geometry}
 
 % --- Matemáticas ---
-\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsmath, amssymb}
 
 % --- Figuras y gráficos ---
 \usepackage{graphicx}
 \graphicspath{{figuras/}}
 \usepackage{float}
 \usepackage{caption}
-\usepackage{subcaption}
 
 % --- Tablas ---
 \usepackage{booktabs}
@@ -45,10 +46,6 @@
   urlcolor=RoyalBlue
 ]{hyperref}
 
-% --- Código fuente (descomenta si lo necesitas) ---
-% \usepackage{listings}
-% \usepackage{minted}
-
 % --- Bibliografía ---
 \usepackage[
   backend=biber,
@@ -57,6 +54,8 @@
 ]{biblatex}
 \addbibresource{referencias.bib}
 
+{{LINENO_PAQUETE}}
+
 % --- Encabezados y pies de página ---
 \usepackage{fancyhdr}
 \pagestyle{fancy}
@@ -64,19 +63,20 @@
 \fancyhead[L]{\small\leftmark}
 \fancyhead[R]{\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
 
-% --- Teoremas y definiciones ---
-\theoremstyle{definition}
-\newtheorem{definicion}{Definición}[section]
-\newtheorem{ejemplo}{Ejemplo}[section]
-\theoremstyle{plain}
-\newtheorem{teorema}{Teorema}[section]
-\newtheorem{proposicion}{Proposición}[section]
+% --- Epígrafes (citas al inicio de capítulos) ---
+\usepackage{epigraph}
+\setlength{\epigraphwidth}{0.6\textwidth}
 
 % ============================================================================
 % Metadatos
 % ============================================================================
-\title{{{TITULO}}}
+\title{
+  \vspace{-2cm}
+  {\LARGE {{TITULO}}} \\[0.5cm]
+  {\large Ensayo}
+}
 \author{{{AUTOR}}}
 \date{{{FECHA}}}
 
@@ -84,70 +84,57 @@
 \begin{document}
 
 \maketitle
-
-\begin{abstract}
-  Resumen del artículo. Describe brevemente el objetivo, la metodología
-  y las conclusiones principales.
-\end{abstract}
+\thispagestyle{empty}
+\newpage
 
 \tableofcontents
 \newpage
 
-% ============================================================================
-\section{Introducción}
-% ============================================================================
-
-Escribe aquí la introducción del artículo.
+{{LINENO_ACTIVAR}}
 
 % ============================================================================
-\section{Marco teórico}
+\chapter{Introducción}
 % ============================================================================
 
-Desarrollo del marco teórico y revisión de literatura.
+% \epigraph{Una cita relevante.}{--- Autor de la cita}
+
+Escribe aquí la introducción del ensayo. Presenta el tema, la tesis
+central y una breve descripción de la estructura del documento.
 
 % ============================================================================
-\section{Metodología}
+\chapter{Desarrollo}
 % ============================================================================
 
-Descripción de la metodología utilizada.
+\section{Primer argumento}
+
+Desarrollo del primer argumento o idea principal.
+
+\section{Segundo argumento}
+
+Desarrollo del segundo argumento o idea principal.
+
+\section{Discusión}
+
+Contraste de ideas, análisis crítico y síntesis de los argumentos
+presentados.
 
 % ============================================================================
-\section{Resultados}
+\chapter{Conclusiones}
 % ============================================================================
 
-Presentación y análisis de los resultados.
-
-% Ejemplo de figura:
-% \begin{figure}[H]
-%   \centering
-%   \includegraphics[width=0.8\textwidth]{ejemplo.png}
-%   \caption{Descripción de la figura.}
-%   \label{fig:ejemplo}
-% \end{figure}
-
-% Ejemplo de tabla:
-% \begin{table}[H]
-%   \centering
-%   \caption{Descripción de la tabla.}
-%   \label{tab:ejemplo}
-%   \begin{tabular}{lcc}
-%     \toprule
-%     Columna 1 & Columna 2 & Columna 3 \\
-%     \midrule
-%     Dato 1 & Dato 2 & Dato 3 \\
-%     \bottomrule
-%   \end{tabular}
-% \end{table}
-
-% ============================================================================
-\section{Conclusiones}
-% ============================================================================
-
-Conclusiones del artículo.
+Conclusiones del ensayo. Retoma la tesis central y resume los hallazgos
+o reflexiones más importantes.
 
 % ============================================================================
 % Bibliografía
 % ============================================================================
-\printbibliography
+\printbibliography[heading=bibintoc, title={Referencias}]
+
+% ============================================================================
+% Apéndices (descomenta si los necesitas)
+% ============================================================================
+% \appendix
+% \chapter{Material complementario}
+% Contenido del apéndice.
 
 \end{document}

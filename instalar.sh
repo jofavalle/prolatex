@@ -1,7 +1,11 @@
 #!/bin/bash
 # ============================================================================
-# Instalador de generarproyecto
+# Instalador de generarproyecto (Linux/macOS)
 # Uso: bash instalar.sh
+#
+# Alternativas:
+#   - Windows: ./instalar.ps1 (PowerShell)
+#   - Cualquier SO con pip: pip install .  /  pipx install .
 # ============================================================================
 
 set -e
@@ -18,13 +22,13 @@ echo ""
 # 1. Crear directorio de plantillas
 echo "  → Instalando plantillas en $TEMPLATES_DEST/"
 mkdir -p "$TEMPLATES_DEST"
-cp -v "$SCRIPT_DIR/templates/"* "$TEMPLATES_DEST/"
+cp -v "$SCRIPT_DIR/src/generarproyecto/templates/"* "$TEMPLATES_DEST/"
 echo ""
 
 # 2. Instalar el script
 echo "  → Instalando script en $BIN_DEST/"
 mkdir -p "$BIN_DEST"
-cp "$SCRIPT_DIR/generarproyecto.py" "$BIN_DEST/generarproyecto"
+cp "$SCRIPT_DIR/src/generarproyecto/__init__.py" "$BIN_DEST/generarproyecto"
 chmod +x "$BIN_DEST/generarproyecto"
 echo ""
 
@@ -56,5 +60,6 @@ echo "  Uso:"
 echo "    generarproyecto --nombre 'Mi artículo' --tipo art"
 echo "    generarproyecto -n 'Mi ensayo' -t ens --autor 'Juan Pérez'"
 echo "    generarproyecto -n 'Mi presentación' -t pres"
+echo "    generarproyecto -n 'Mi artículo' -t art -l    # numeración de líneas"
 echo "    generarproyecto --listar"
 echo ""
