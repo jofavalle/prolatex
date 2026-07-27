@@ -118,6 +118,21 @@ TIPOS = {
     },
 }
 
+# Formatos de documento. El sufijo se inserta antes de la extensión para
+# localizar la plantilla: articulo.tex + "-hep" → articulo-hep.tex.
+FORMATOS = {
+    "hep": {
+        "sufijo": "-hep",
+        "descripcion": "Paper de física de altas energías (tipografía estilo LHCb)",
+    },
+    "clasico": {
+        "sufijo": "",
+        "descripcion": "Académico general (el formato original de prolatex)",
+    },
+}
+
+FORMATO_DEFAULT = "hep"
+
 # Estilos de citas disponibles (relevantes para Física)
 # Cada entrada: clave → (estilo biblatex, sorting, descripción)
 ESTILOS_CITAS = {
@@ -215,6 +230,24 @@ def copiar_plantilla(origen: Path, destino: Path, variables: dict):
     destino.write_text(contenido, encoding="utf-8")
 
 
+def resolver_plantilla(tipo: str, formato: str) -> Path:
+    """
+    Devuelve la ruta de la plantilla para el par (tipo, formato).
+
+    Si el formato define un sufijo y existe la variante correspondiente, se usa
+    esa; si no, se cae en la plantilla base del tipo. Así un formato puede
+    cubrir solo algunos tipos sin romper el resto: 'hep' aporta articulo-hep.tex
+    y los demás tipos siguen usando su plantilla de siempre.
+    """
+    base = TIPOS[tipo]["plantilla"]
+    sufijo = FORMATOS[formato]["sufijo"]
+    if sufijo:
+        variante = TEMPLATES_DIR / base.replace(".tex", f"{sufijo}.tex")
+        if variante.exists():
+            return variante
+    return TEMPLATES_DIR / base
+
+
 def verificar_plantillas():
     """Verifica que el directorio de plantillas existe y tiene los archivos."""
     if not TEMPLATES_DIR.exists():
@@ -231,8 +264,8 @@ def verificar_plantillas():
         print("También puedes definir LATEX_TEMPLATES_DIR apuntando a tu propio directorio de plantillas.")
         sys.exit(1)
 
-    archivos_necesarios = ["articulo.tex", "ensayo.tex", "presentacion.tex",
-                           "referencias.bib", "Makefile"]
+    archivos_necesarios = ["articulo.tex", "articulo-hep.tex", "ensayo.tex",
+                           "presentacion.tex", "referencias.bib", "Makefile"]
     faltantes = [a for a in archivos_necesarios if not (TEMPLATES_DIR / a).exists()]
 
     if faltantes:
@@ -255,12 +288,21 @@ def crear_proyecto(
     numeracion_lineas: bool = False,
     lineas_lado: str = LINEAS_LADO_DEFAULT,
     lineas_modulo: int = LINEAS_MODULO_DEFAULT,
+    formato: str = FORMATO_DEFAULT,
+    institucion: str = "",
+    num_informe: str = "",
+    publicado_en: str = "",
 ):
     """Crea la estructura completa del proyecto LaTeX."""
 
     if tipo not in TIPOS:
         print(f"Error: Tipo '{tipo}' no reconocido.")
         print(f"Tipos disponibles: {', '.join(TIPOS.keys())}")
+        sys.exit(1)
+
+    if formato not in FORMATOS:
+        print(f"Error: Formato '{formato}' no reconocido.")
+        print(f"Formatos disponibles: {', '.join(FORMATOS.keys())}")
         sys.exit(1)
 
     verificar_plantillas()
@@ -313,6 +355,9 @@ def crear_proyecto(
         "SORTING_CITAS": info_citas["sorting"],
         "LINENO_PAQUETE": lineno_paquete,
         "LINENO_ACTIVAR": lineno_activar,
+        "INSTITUCION": institucion,
+        "NUM_INFORME": num_informe,
+        "PUBLICADO_EN": publicado_en,
     }
 
     # Crear directorio del proyecto
@@ -326,7 +371,7 @@ def crear_proyecto(
     (dir_proyecto / "figuras").mkdir()
 
     # Copiar y procesar la plantilla principal
-    plantilla_origen = TEMPLATES_DIR / info_tipo["plantilla"]
+    plantilla_origen = resolver_plantilla(tipo, formato)
     archivo_tex = dir_proyecto / f"{slug}.tex"
 
     if plantilla_origen.exists():
@@ -386,6 +431,7 @@ def crear_proyecto(
     print(f"  ✓ Proyecto creado exitosamente")
     print(f"  ─────────────────────────────────────")
     print(f"  Tipo:      {info_tipo['descripcion']}")
+    print(f"  Formato:   {FORMATOS[formato]['descripcion']}")
     print(f"  Título:    {nombre}")
     print(f"  Autor:     {autor}")
     print(f"  Citas:     {info_citas['descripcion']}")
@@ -430,8 +476,13 @@ def main():
             "  numeric    → Numérico genérico\n"
             "  authoryear → Autor-año genérico\n"
             "\n"
+            "Formatos:\n"
+            "  hep     → Paper de física de altas energías (por defecto)\n"
+            "  clasico → Académico general\n"
+            "\n"
             "Ejemplos:\n"
             "  generarproyecto --nombre 'Análisis de datos' --tipo art\n"
+            "  generarproyecto -n 'Trabajo de curso' -t art --formato clasico\n"
             "  generarproyecto -n 'Ética en IA' -t ens --citas apa\n"
             "  generarproyecto -n 'Avances en ML' -t pres --autor 'María López'\n"
             "  generarproyecto -n 'Revisión de pares' -t art -l\n"
@@ -468,6 +519,34 @@ def main():
         default=CITAS_DEFAULT,
         choices=list(ESTILOS_CITAS.keys()),
         help=f"Estilo de citas bibliográficas (default: '{CITAS_DEFAULT}')"
+    )
+
+    parser.add_argument(
+        "-f", "--formato",
+        default=FORMATO_DEFAULT,
+        choices=list(FORMATOS.keys()),
+        help=f"Formato del documento (default: '{FORMATO_DEFAULT}')"
+    )
+
+    parser.add_argument(
+        "--institucion",
+        default="",
+        help=(
+            "Institución que encabeza la portada. Vacío por defecto: rellénalo "
+            "solo si el documento pertenece de verdad a esa institución."
+        )
+    )
+
+    parser.add_argument(
+        "--num-informe",
+        default="",
+        help="Número de informe interno que aparece en la portada (vacío por defecto)"
+    )
+
+    parser.add_argument(
+        "--publicado-en",
+        default="",
+        help="Línea de publicación al pie de la portada (vacío por defecto)"
     )
 
     parser.add_argument(
@@ -518,6 +597,12 @@ def main():
         for clave, info in ESTILOS_CITAS.items():
             print(f"  {clave:12s} → {info['descripcion']}")
         print()
+        print("Formatos disponibles:")
+        print()
+        for clave, info in FORMATOS.items():
+            marca = "  (por defecto)" if clave == FORMATO_DEFAULT else ""
+            print(f"  {clave:12s} → {info['descripcion']}{marca}")
+        print()
         sys.exit(0)
 
     # Validar argumentos requeridos cuando no se usa --listar
@@ -537,6 +622,10 @@ def main():
         numeracion_lineas=args.numeracion_lineas,
         lineas_lado=args.lineas_lado,
         lineas_modulo=args.lineas_modulo,
+        formato=args.formato,
+        institucion=args.institucion,
+        num_informe=args.num_informe,
+        publicado_en=args.publicado_en,
     )
 
 

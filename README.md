@@ -36,8 +36,11 @@ Esta opción funciona igual en Linux, macOS y Windows: instala el comando `gener
 ## Uso
 
 ```bash
-# Crear un artículo
+# Crear un artículo (formato hep por defecto)
 generarproyecto --nombre "Análisis de redes neuronales" --tipo art
+
+# Crear un artículo con el formato académico general
+generarproyecto -n "Trabajo de curso" -t art --formato clasico
 
 # Crear un ensayo
 generarproyecto -n "Ética en la inteligencia artificial" -t ens
@@ -70,6 +73,44 @@ generarproyecto --listar
 | `art` | Artículo | `article` |
 | `ens` | Ensayo | `report` |
 | `pres` | Presentación | `beamer` |
+
+## Formatos de documento
+
+La opción `-f` / `--formato` elige la tipografía y la estructura del documento. Es un eje
+independiente del tipo y del estilo de citas: se combinan libremente.
+
+| Código | Formato | Descripción |
+|--------|---------|-------------|
+| `hep` | Física de altas energías | Tipografía de paper de colaboración: 12pt sobre A4, márgenes de una pulgada, `upgreek` para notación de partículas, portada con resumen centrado. **Por defecto** |
+| `clasico` | Académico general | El formato original: márgenes de 2.5 cm, índice, encabezados y entornos de teorema |
+
+```bash
+generarproyecto -n "Medida de la fracción de ramificación" -t art          # hep, por defecto
+generarproyecto -n "Trabajo de curso" -t art --formato clasico
+generarproyecto -n "Mi artículo" -t art --formato hep --citas apa -l       # se combinan
+```
+
+Por ahora solo el tipo `art` tiene variante propia para el formato `hep`. Los tipos `ens` y
+`pres` usan su plantilla de siempre sea cual sea el formato elegido.
+
+### Portada del formato `hep`
+
+El formato `hep` reproduce la estructura de portada de un paper de colaboración, con tres
+campos **vacíos por defecto**:
+
+| Opción | Qué rellena |
+|--------|-------------|
+| `--institucion` | Encabezado institucional en la parte superior |
+| `--num-informe` | Número de informe interno, alineado a la derecha |
+| `--publicado-en` | Línea de publicación al pie de la portada |
+
+Cada bloque se omite del documento si su campo va vacío. Rellénalos solo si el documento
+pertenece de verdad a esa institución: un documento personal con un encabezado institucional
+ajeno induce a error sobre su procedencia.
+
+> El formato `hep` es una reproducción de los ajustes tipográficos habituales en los papers
+> de física de altas energías, no la plantilla oficial de ninguna colaboración. Como
+> referencia de cómo se ve el resultado publicado puede consultarse `arXiv:2509.15873`.
 
 ## Estilos de citas
 
@@ -175,7 +216,7 @@ Para agregar referencias, edita el archivo `referencias.bib` con entradas BibTeX
 ## Requisitos
 
 - Python 3.9+
-- Una distribución LaTeX (TeX Live, MiKTeX) con soporte para `biblatex`/`biber` y el paquete `lineno`
+- Una distribución LaTeX (TeX Live, MiKTeX) con soporte para `biblatex`/`biber` y los paquetes `lineno` y `upgreek` (este último lo usa el formato `hep`)
 - `latexmk` (opcional, para `make watch`)
 - En Windows, además: `make` (vía MSYS2, Chocolatey o WSL) para poder usar el `Makefile` generado (ver [Compilar en Windows](#compilar-en-windows))
 
@@ -188,7 +229,7 @@ sudo apt-get install texlive-latex-recommended texlive-bibtex-extra biber
 # Soporte para español
 sudo apt-get install texlive-lang-spanish
 
-# Tema Metropolis para presentaciones beamer
+# Tema Metropolis para presentaciones beamer, y upgreek para el formato hep
 sudo apt-get install texlive-latex-extra
 
 # Compilación continua (opcional)

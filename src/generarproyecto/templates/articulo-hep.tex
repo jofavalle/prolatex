@@ -1,0 +1,242 @@
+% ============================================================================
+% Artículo (formato HEP): {{TITULO}}
+% Autor:    {{AUTOR}}
+% Fecha:    {{FECHA}}
+%
+% Formato inspirado en la plantilla de documentos de la colaboración LHCb.
+% Reproduce sus ajustes tipográficos (clase, márgenes, composición, paquetes),
+% no la plantilla oficial ni la identidad institucional del CERN. Los campos
+% institucionales van vacíos por defecto: se rellenan con --institucion,
+% --num-informe y --publicado-en solo si tu documento de verdad los necesita.
+%
+% Ejemplo publicado con este formato: arXiv:2509.15873
+% ============================================================================
+\documentclass[12pt, a4paper]{article}
+
+% --- Idioma y codificación ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+
+% --- Tipografía y composición ---
+\usepackage{lmodern}
+\usepackage{microtype}
+\raggedbottom
+\sloppy
+
+% --- Márgenes ---
+\usepackage[
+  top=1in,
+  bottom=1.25in,
+  left=1in,
+  right=1in
+]{geometry}
+\columnsep=5mm
+
+% --- Comportamiento de los flotantes ---
+\renewcommand{\textfraction}{0.01}
+\renewcommand{\floatpagefraction}{0.8}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.9}
+
+% --- Matemáticas ---
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{upgreek}   % griegas rectas: obligatorias en notación de partículas
+
+% --- Figuras y tablas ---
+\usepackage{graphicx}
+\graphicspath{{figuras/}}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+
+% --- Notas al pie al fondo de la página ---
+\usepackage[bottom, flushmargin, hang, multiple]{footmisc}
+
+% --- Enlaces ---
+\usepackage{xcolor}
+\usepackage[
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=blue
+]{hyperref}
+\usepackage[all]{hypcap}
+
+% --- Bibliografía ---
+\usepackage[
+  backend=biber,
+  style={{ESTILO_CITAS}},
+  sorting={{SORTING_CITAS}}
+]{biblatex}
+\addbibresource{referencias.bib}
+
+{{LINENO_PAQUETE}}
+
+% --- Utilidades ---
+\usepackage{ifthen}
+\usepackage{xspace}
+
+% ============================================================================
+% Macros de partículas y unidades
+%
+% Conjunto propio y deliberadamente corto: solo lo que se usa a diario.
+% El juego completo de símbolos se distribuye con la plantilla oficial de la
+% colaboración; no se reproduce aquí. Añade los tuyos debajo.
+% ============================================================================
+\newcommand{\Bc}{\ensuremath{B_c^+}\xspace}
+\newcommand{\jpsi}{\ensuremath{J/\psi}\xspace}
+\newcommand{\Dz}{\ensuremath{D^0}\xspace}
+\newcommand{\Dsp}{\ensuremath{D_s^+}\xspace}
+\newcommand{\Kp}{\ensuremath{K^+}\xspace}
+\newcommand{\pip}{\ensuremath{\pi^+}\xspace}
+\newcommand{\GeV}{\ensuremath{\mathrm{\,Ge\kern -0.1em V}}\xspace}
+\newcommand{\MeV}{\ensuremath{\mathrm{\,Me\kern -0.1em V}}\xspace}
+\newcommand{\GeVcc}{\ensuremath{\mathrm{\,Ge\kern -0.1em V\!/}c^2}\xspace}
+\newcommand{\MeVcc}{\ensuremath{\mathrm{\,Me\kern -0.1em V\!/}c^2}\xspace}
+\newcommand{\ifb}{\ensuremath{\mbox{\,fb}^{-1}}\xspace}
+
+% ============================================================================
+% Metadatos
+% ============================================================================
+\newcommand{\eltitulo}{{{TITULO}}}
+\newcommand{\elautor}{{{AUTOR}}}
+\newcommand{\lafecha}{{{FECHA}}}
+\newcommand{\lainstitucion}{{{INSTITUCION}}}
+\newcommand{\elnuminforme}{{{NUM_INFORME}}}
+\newcommand{\lapublicacion}{{{PUBLICADO_EN}}}
+
+\hypersetup{
+  pdftitle={\eltitulo},
+  pdfauthor={\elautor}
+}
+
+% ============================================================================
+\begin{document}
+
+% ----------------------------------------------------------------------------
+% Portada
+% ----------------------------------------------------------------------------
+\thispagestyle{empty}
+
+\ifthenelse{\equal{\lainstitucion}{}}{}{%
+  \begin{center}
+    {\large\scshape \lainstitucion}
+  \end{center}
+  \vspace{2em}
+}
+
+\begin{flushright}
+  \ifthenelse{\equal{\elnuminforme}{}}{}{\elnuminforme \\}
+  \lafecha
+\end{flushright}
+
+\vspace{4em}
+
+\begin{center}
+  {\LARGE\bfseries \eltitulo}\\[2.5em]
+  {\large \elautor}
+\end{center}
+
+\vspace{2.5em}
+
+\begin{center}
+  \begin{minipage}{0.85\textwidth}
+    \begin{center}
+      \textbf{Resumen}
+    \end{center}
+    \vspace{0.5em}
+    \noindent
+    Un solo párrafo: qué se midió, con qué datos, con qué método, y el
+    resultado principal con su incertidumbre. Sin citas y sin referencias
+    a secciones del propio documento.
+  \end{minipage}
+\end{center}
+
+\vfill
+
+\ifthenelse{\equal{\lapublicacion}{}}{}{%
+  \begin{center}
+    \lapublicacion
+  \end{center}
+}
+
+\clearpage
+
+{{LINENO_ACTIVAR}}
+
+% ============================================================================
+\section{Introducción}
+% ============================================================================
+
+Contexto físico, qué se sabe ya y qué hueco viene a llenar este trabajo.
+Termina anunciando qué se mide y con qué datos.
+
+% ============================================================================
+\section{Datos y selección}
+% ============================================================================
+
+Origen de la muestra, luminosidad integrada, criterios de selección y su
+justificación.
+
+% ============================================================================
+\section{Método}
+% ============================================================================
+
+Modelo de ajuste, estimadores y procedimiento. Todo proceso estocástico
+declara su semilla.
+
+% Ejemplo de figura:
+% \begin{figure}[htbp]
+%   \centering
+%   \includegraphics[width=0.8\textwidth]{ejemplo.pdf}
+%   \caption{Descripción de la figura. Toda masa se nombra por el sistema al
+%            que pertenece.}
+%   \label{fig:ejemplo}
+% \end{figure}
+
+% ============================================================================
+\section{Incertidumbres sistemáticas}
+% ============================================================================
+
+Catálogo de fuentes, cómo se estima cada una y cómo se combinan.
+
+% Ejemplo de tabla:
+% \begin{table}[htbp]
+%   \centering
+%   \caption{Descripción de la tabla.}
+%   \label{tab:ejemplo}
+%   \begin{tabular}{lcc}
+%     \toprule
+%     Fuente & Valor & Unidad \\
+%     \midrule
+%     Dato 1 & Dato 2 & Dato 3 \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
+
+% ============================================================================
+\section{Resultados}
+% ============================================================================
+
+Valor central, incertidumbre estadística, incertidumbre sistemática, y en ese
+orden.
+
+% ============================================================================
+\section{Conclusiones}
+% ============================================================================
+
+Qué se concluye y qué queda abierto.
+
+% ============================================================================
+% Bibliografía
+% ============================================================================
+\printbibliography
+
+\end{document}
