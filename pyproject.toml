@@ -10,6 +10,9 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
 
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
 [project.scripts]
 generarproyecto = "generarproyecto:main"
 
@@ -18,3 +21,6 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 generarproyecto = ["templates/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
